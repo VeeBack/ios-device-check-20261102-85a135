@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       osm_client_id:
-        description: Optional OSM development client ID registered for network.vee.openstop.test://oauth2
+        description: Optional live OSM client ID registered for network.vee.openstop.test://oauth2
         required: false
         default: ''
 
@@ -45,10 +45,10 @@ jobs:
       - name: Build unsigned device app
         working-directory: app
         env:
-          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id || 'JqI3Sx2UrxbyfI_4IAyoaDdRGCRAH2llts5AAINTRik' }}
+          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id || 'ByoAb9j_P7WpVhnqmxViglgZE213Z9CwpX0PZakAEAc' }}
           THUNDERFOREST_API_KEY: ${{ secrets.THUNDERFOREST_API_KEY }}
         run: |
-          args=(--release --no-codesign --dart-define=IS_RELEASE=false --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
+          args=(--release --no-codesign --dart-define=IS_RELEASE=false --dart-define=OSM_SERVER=www.openstreetmap.org --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
           if [ -n "$OSM_TEST_CLIENT_ID" ]; then
             args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
           fi
