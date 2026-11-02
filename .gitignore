@@ -1,0 +1,4 @@
+.preview/
+app/
+__pycache__/
+.validation/

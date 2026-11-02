@@ -1,0 +1,67 @@
+name: Personal iOS test build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      osm_client_id:
+        description: Optional OSM development client ID registered for network.vee.openstop.test://oauth2
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Unpack source snapshot
+        run: unzip -q source.zip -d app
+      - name: Configure personal test app
+        run: python3 prepare_ios.py app
+      - name: Read Flutter version
+        id: flutter
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          version = re.search(r'^  flutter: ([0-9.]+)$', Path('app/pubspec.yaml').read_text(), re.M).group(1)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={version}\n')
+          PY
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.flutter.outputs.version }}
+          channel: master
+      - name: Generate app sources
+        working-directory: app
+        run: |
+          flutter pub get --enforce-lockfile
+          dart run build_runner build --delete-conflicting-outputs
+      - name: Build unsigned device app
+        working-directory: app
+        env:
+          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id }}
+        run: |
+          args=(--release --no-codesign --dart-define=IS_RELEASE=false --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
+          if [ -n "$OSM_TEST_CLIENT_ID" ]; then
+            args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
+          fi
+          flutter build ios "${args[@]}"
+      - name: Package unsigned IPA for local signing
+        working-directory: app
+        run: |
+          mkdir -p build/ios/package/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/package/Payload/
+          cd build/ios/package
+          /usr/bin/zip -qry ../OpenStop-personal-test-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: OpenStop-personal-test-unsigned
+          path: app/build/ios/OpenStop-personal-test-unsigned.ipa
+          retention-days: 1
+          if-no-files-found: error
