@@ -45,12 +45,14 @@ jobs:
       - name: Build unsigned device app
         working-directory: app
         env:
-          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id }}
+          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id || 'JqI3Sx2UrxbyfI_4IAyoaDdRGCRAH2llts5AAINTRik' }}
+          THUNDERFOREST_API_KEY: ${{ secrets.THUNDERFOREST_API_KEY }}
         run: |
           args=(--release --no-codesign --dart-define=IS_RELEASE=false --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
           if [ -n "$OSM_TEST_CLIENT_ID" ]; then
             args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
           fi
+          args+=("--dart-define=THUNDERFOREST_API_KEY=$THUNDERFOREST_API_KEY")
           flutter build ios "${args[@]}"
       - name: Package unsigned IPA for local signing
         working-directory: app
