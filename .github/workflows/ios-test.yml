@@ -53,7 +53,7 @@ jobs:
             args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
           fi
           args+=("--dart-define=THUNDERFOREST_API_KEY=$THUNDERFOREST_API_KEY")
-          flutter build ios "${args[@]}"
+          flutter build ios "${args[@]}" --verbose
       - name: Package unsigned IPA for local signing
         working-directory: app
         run: |
