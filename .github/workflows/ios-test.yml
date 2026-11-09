@@ -49,8 +49,8 @@ jobs:
           THUNDERFOREST_API_KEY: ${{ secrets.THUNDERFOREST_API_KEY }}
         run: |
           build_number=$((1000 + GITHUB_RUN_NUMBER))
-          # SideStore compares release versions, so each test build needs a new patch.
-          build_name="$(python3 -c 'import re; from pathlib import Path; match = re.search(r"^version:\s*(\d+)\.(\d+)\.", Path("pubspec.yaml").read_text(), re.M); print(f"{match[1]}.{match[2]}.")')${build_number}"
+          # Keep test versions below upstream releases and distinct for SideStore updates.
+          build_name="0.0.${build_number}"
           args=(--release --no-codesign "--build-name=$build_name" "--build-number=$build_number" --dart-define=IS_RELEASE=false --dart-define=OSM_SERVER=www.openstreetmap.org --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
           if [ -n "$OSM_TEST_CLIENT_ID" ]; then
             args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
