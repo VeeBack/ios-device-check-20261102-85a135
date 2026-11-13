@@ -58,7 +58,7 @@ jobs:
           build_number=$((1000 + GITHUB_RUN_NUMBER))
           # Keep test versions below upstream releases and distinct for SideStore updates.
           build_name="0.0.${build_number}"
-          args=(--release --no-codesign "--build-name=$build_name" "--build-number=$build_number" --dart-define=IS_RELEASE=false --dart-define=OSM_SERVER=www.openstreetmap.org --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
+          args=(--release --no-codesign "--build-name=$build_name" "--build-number=$build_number" --dart-define=IS_RELEASE=true --dart-define=OSM_SERVER=www.openstreetmap.org --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
           if [ -n "$OSM_TEST_CLIENT_ID" ]; then
             args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
           fi
