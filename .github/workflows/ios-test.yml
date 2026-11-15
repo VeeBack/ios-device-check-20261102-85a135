@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      osm_client_id:
-        description: Optional live OSM client ID registered for network.vee.openstop.test://oauth2
-        required: false
-        default: ''
 
 permissions:
   contents: read
@@ -52,18 +47,16 @@ jobs:
       - name: Build unsigned device app
         working-directory: app
         env:
-          OSM_TEST_CLIENT_ID: ${{ inputs.osm_client_id || 'ByoAb9j_P7WpVhnqmxViglgZE213Z9CwpX0PZakAEAc' }}
           THUNDERFOREST_API_KEY: ${{ secrets.THUNDERFOREST_API_KEY }}
         run: |
+          test -n "$THUNDERFOREST_API_KEY" || { echo "THUNDERFOREST_API_KEY secret is missing"; exit 1; }
           build_number=$((1000 + GITHUB_RUN_NUMBER))
           # Keep test versions below upstream releases and distinct for SideStore updates.
           build_name="0.0.${build_number}"
-          args=(--release --no-codesign "--build-name=$build_name" "--build-number=$build_number" --dart-define=IS_RELEASE=true --dart-define=OSM_SERVER=www.openstreetmap.org --dart-define=OSM_REDIRECT_URI=network.vee.openstop.test://oauth2)
-          if [ -n "$OSM_TEST_CLIENT_ID" ]; then
-            args+=("--dart-define=OSM_CLIENT_ID=$OSM_TEST_CLIENT_ID")
-          fi
-          args+=("--dart-define=THUNDERFOREST_API_KEY=$THUNDERFOREST_API_KEY")
-          flutter build ios "${args[@]}" --verbose
+          # build-defines.json holds the non-secret settings written by build_and_publish.py.
+          flutter build ios --release --no-codesign "--build-name=$build_name" "--build-number=$build_number" \
+            --dart-define-from-file=../build-defines.json \
+            "--dart-define=THUNDERFOREST_API_KEY=$THUNDERFOREST_API_KEY" --verbose
       - name: Package unsigned IPA for local signing
         working-directory: app
         run: |

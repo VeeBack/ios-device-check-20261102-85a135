@@ -11,7 +11,9 @@ Apple Account and a sideloading tool. An unsigned IPA cannot be installed direct
 The test app has a separate bundle identifier and no Associated Domains capability.
 It uses live OpenStreetMap (submitted answers make real edits) and the custom callback
 `network.vee.openstop.test://oauth2`. OSM login requires an OAuth public client
-registered on live OSM with this exact callback. Supply its client ID using
-Run workflow; do not put Apple credentials in this repository.
+registered on live OSM with this exact callback. The non-secret build settings
+are in `build-defines.json`, written together with `source.zip` by
+`V:\PersonalBuilds\build_and_publish.py`. The Thunderforest key is the
+`THUNDERFOREST_API_KEY` Actions secret. Do not put Apple credentials in this repository.
 
 After the IPA has been downloaded, the owner can delete this repository.
