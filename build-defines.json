@@ -1,0 +1,6 @@
+{
+  "IS_RELEASE": "true",
+  "OSM_SERVER": "www.openstreetmap.org",
+  "OSM_CLIENT_ID": "ByoAb9j_P7WpVhnqmxViglgZE213Z9CwpX0PZakAEAc",
+  "OSM_REDIRECT_URI": "network.vee.openstop.test://oauth2"
+}
